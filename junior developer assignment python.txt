@@ -1,0 +1,113 @@
+Problem Set I - Regex
+
+Write a regex to extract all the numbers with orange color background from the below text in italics (Output should be a list).
+
+
+{"orders":[{"id":1},{"id":2},{"id":3},{"id":4},{"id":5},{"id":6},{"id":7},{"id":8},{"id":9},{"id":10},{"id":11},{"id":648},{"id":649},{"id":650},{"id":651},{"id":652},{"id":653}],"errors":[{"code":3,"message":"[PHP Warning #2] count(): Parameter must be an array or an object that implements Countable (153)"}]}
+
+
+solution:
+python code:
+
+import re
+
+text = '{"orders":[{"id":1},{"id":2},{"id":3},{"id":4},{"id":5},{"id":6},{"id":7},{"id":8},{"id":9},{"id":10},{"id":11},{"id":648},{"id":649},{"id":650},{"id":651},{"id":652},{"id":653}],"errors":[{"code":3,"message":"[PHP Warning #2] count(): Parameter must be an array or an object that implements Countable (153)"}]}'
+
+pattern = re.compile(r'{"id":(\d+)}')
+matches = pattern.findall(text)
+
+print(matches)
+
+output:
+
+['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '648', '649', '650', '651', '652', '653']
+
+
+
+Problem Set 2 - A functioning web app with API
+
+# models.py
+from django.db import models
+from django.contrib.auth.models import User
+
+class App(models.Model):
+    name = models.CharField(max_length=255)
+    points = models.IntegerField()
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    points_earned = models.IntegerField(default=0)
+    tasks_completed = models.IntegerField(default=0)
+    screenshot = models.ImageField(upload_to='screenshots/', null=True, blank=True)
+
+class UserApp(models.Model):
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    app = models.ForeignKey(App, on_delete=models.CASCADE)
+    downloaded = models.BooleanField(default=False)
+INSTALLED_APPS = [
+    # ...
+    'rest_framework',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        # Add other authentication classes if needed
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        # Add other permission classes if needed
+    ),
+}
+
+# admin.py
+from django.contrib import admin
+from .models import App, UserProfile, UserApp
+
+class UserAppInline(admin.TabularInline):
+    model = UserApp
+
+class UserProfileAdmin(admin.ModelAdmin):
+    inlines = [UserAppInline]
+
+admin.site.register(App)
+admin.site.register(UserProfile, UserProfileAdmin)
+
+
+problem set 3:
+
+A. For scheduling periodic tasks like downloading a list of ISINs every 24 hours, I would recommend using a task scheduler like Celery combined with a message broker such as RabbitMQ or Redis. Celery is a distributed task queue system that allows you to run tasks asynchronously and periodically. Here's why I would choose this system:
+
+Reliability: Celery is known for its reliability and fault-tolerance. It can handle task failures gracefully and retry them as needed, ensuring that periodic tasks are executed reliably.
+
+Scalability: Celery is designed to be scalable. It can distribute tasks across multiple worker nodes, allowing you to scale your system horizontally as the load increases. This makes it suitable for handling large-scale production workloads.
+
+Flexibility: Celery supports various brokers, including RabbitMQ, Redis, and others. This flexibility allows you to choose a message broker that fits your specific requirements and infrastructure.
+
+Periodic Task Support: Celery has built-in support for periodic tasks using its beat scheduler. This makes it easy to set up tasks that need to run at specified intervals, such as every 24 hours.
+
+If scaling becomes an issue, you can address it by adding more worker nodes to distribute the load or by optimizing your task execution. Monitoring tools like Celery Flower can help you keep track of task execution and identify potential bottlenecks.
+
+B. Flask vs. Django:
+
+The choice between Flask and Django depends on the specific requirements of your web application:
+
+Flask:
+
+Use Flask when you need a lightweight and flexible framework.
+It is a micro-framework, meaning it provides only the essentials, leaving you with the freedom to choose components and libraries for other functionalities.
+Well-suited for small to medium-sized projects or applications where you want more control over the components you use.
+
+Django:
+
+Choose Django when you need a full-stack framework with a built-in ORM, admin panel, and other features.
+Django follows the "batteries-included" philosophy, providing a lot of built-in functionality out of the box.
+Ideal for larger projects or applications where rapid development and conventions are more important than flexibility in choosing components.
+
+
+
+
+
+
+
+
